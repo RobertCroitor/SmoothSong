@@ -3,11 +3,104 @@ from tkinter.messagebox import showinfo
 from tkinter.ttk import Progressbar
 from PIL import ImageTk, Image
 import webbrowser
+from postgres import selectAllSongs as getSongs
+from postgres import insertTableSongs as postSongs
+from utils import crypt
+from postgres import getUserByUsername as getUsername
+from postgres import getCountUserByUsername as getCountUsername
+from postgres import insertUserTable as postUser
 
 
 def openPayPal():
     url = "https://www.paypal.com/ro/business"
     webbrowser.open(url, new=1)
+
+
+def postSong(songEntry, authorEntry, genreEntry, songImageEntry, songFileEntry):
+    songName = (songEntry.get())
+    authorName = (authorEntry.get())
+    genreName = (genreEntry.get())
+    songImage = (songImageEntry.get())
+    songURL = (songFileEntry.get())
+    if songName == "" or authorName == "" or genreName == "" or songImage == "" or songURL == "":
+        tk.messagebox.showwarning(title="Error", message="You cannot have empty fields")
+    else:
+        postSongs.insertSong(songName, authorName, genreName, songImage, songURL)
+        songEntry.delete(0, tk.END)
+        authorEntry.delete(0, tk.END)
+        genreEntry.delete(0, tk.END)
+        songImageEntry.delete(0, tk.END)
+        songFileEntry.delete(0, tk.END)
+
+
+def register(nameEntry, passwordEntry, rePasswordEntry, window):
+    inputUsername = (nameEntry.get())
+    inputPassword = (passwordEntry.get())
+    inputRePassword = (rePasswordEntry.get())
+    if inputUsername == "":
+        passwordEntry.delete(0, tk.END)
+        rePasswordEntry.delete(0, tk.END)
+        tk.messagebox.showwarning(title="Error", message="Username cannot be empty")
+    else:
+        count = getCountUsername.getUserByUsername(inputUsername)[0][0]
+        if count == 1:
+            passwordEntry.delete(0, tk.END)
+            rePasswordEntry.delete(0, tk.END)
+            tk.messagebox.showwarning(title="Error", message="Username is already used")
+        else:
+            if inputPassword == "":
+                rePasswordEntry.delete(0, tk.END)
+                tk.messagebox.showwarning(title="Error", message="Password cannot be empty")
+            else:
+                if inputRePassword == "":
+                    tk.messagebox.showwarning(title="Error", message="Password confirmation cannot be empty")
+                else:
+                    if len(inputPassword) < 8:
+                        passwordEntry.delete(0, tk.END)
+                        rePasswordEntry.delete(0, tk.END)
+                        tk.messagebox.showwarning(title="Error", message="Password must be at least 8 characters")
+                    else:
+                        if inputPassword != inputRePassword:
+                            rePasswordEntry.delete(0, tk.END)
+                            tk.messagebox.showwarning(title="Error", message="Passwords do not match")
+                        else:
+                            confirmation = postUser.insertUser(inputUsername, inputPassword)
+                            if confirmation:
+                                tk.messagebox.showwarning(title="Error",
+                                                          message="Register Succesfully")
+                                goToLogin(window)
+                            else:
+                                tk.messagebox.showwarning(title="Error",
+                                                          message="Register Failed")
+
+
+def login(nameEntry, passwordEntry, window):
+    inputUsername = (nameEntry.get())
+    inputPassword = (passwordEntry.get())
+    if inputUsername == "" and inputPassword == "":
+        tk.messagebox.showwarning(title="Error", message="Username and Password cannot be empty")
+    else:
+        if inputUsername == "":
+            passwordEntry.delete(0, tk.END)
+            tk.messagebox.showwarning(title="Error", message="Username cannot be empty")
+        else:
+            if inputPassword == "":
+                tk.messagebox.showwarning(title="Error", message="Password cannot be empty")
+            else:
+                cryptedInputPassword = crypt.encrypt(inputPassword)
+                count = getCountUsername.getUserByUsername(inputUsername)[0][0]
+                if count == 0:
+                    passwordEntry.delete(0, tk.END)
+                    tk.messagebox.showwarning(title="Error", message="Wrong Username")
+
+                else:
+                    dbPassword = getUsername.getUserByUsername(inputUsername)[0][2]
+                    if dbPassword != cryptedInputPassword:
+                        passwordEntry.delete(0, tk.END)
+                        tk.messagebox.showwarning(title="Error", message="Wrong Password")
+
+                    else:
+                        goBackToMainWindow(window)
 
 
 def changeWindowToAddSong(window):
@@ -20,9 +113,131 @@ def changeWindowToSearch(window):
     searchFrame()
 
 
+def goToRegister(window):
+    window.destroy()
+    registerWindow()
+
+
+def goToLogin(window):
+    window.destroy()
+    loginWindow()
+
+
 def goBackToMainWindow(window):
     window.destroy()
-    func()
+    mainWindow()
+
+
+def registerWindow():
+    # Login Window
+    registerWindow = tk.Tk()
+    registerWindow.top_bar = tk.Frame(registerWindow, bg="Red", cursor="sizing")
+    registerWindow.title("Register")
+    registerWindow.configure(bg="#5a5b5e")
+    registerWindow.resizable(False, False)
+    # SCREEN SIZE
+    screenWidth = round(registerWindow.winfo_screenwidth() * 0.3)
+    screenHeight = round(registerWindow.winfo_screenheight() * 0.5)
+    registerWindow.geometry("%dx%d" % (screenWidth, screenHeight))
+    # BUTTON SIZE
+    buttonWidth = 30
+
+    # LIST SIZE
+    listBoxWidth = 80
+    listBoxHeight = 35
+
+    # FORM
+
+    registerWindow.configure(background="grey")
+    nameLabel = tk.Label(registerWindow, text='Name', width=10, bg="#5c1a56",
+                         fg="silver", font="sans 8 bold", )
+
+    passwordLabel = tk.Label(registerWindow, text='Password', width=10, bg="#5c1a56",
+                             fg="silver", font="sans 8 bold", )
+
+    rePasswordLabel = tk.Label(registerWindow, text='Re-Password', width=10, bg="#5c1a56",
+                               fg="silver", font="sans 8 bold", )
+
+    nameEntry = tk.Entry(registerWindow, width=50)
+
+    passwordEntry = tk.Entry(registerWindow, show="\u2022", width=50)
+    rePasswordEntry = tk.Entry(registerWindow, show="\u2022", width=50)
+
+    registerButton = tk.Button(registerWindow, width=int(buttonWidth / 2), text='Register', bg="#5c1a56",
+                               fg="silver", font="sans 8 bold",
+                               command=lambda: register(nameEntry, passwordEntry, rePasswordEntry, registerWindow))
+
+    # BUTTON
+    loginButton = tk.Button(registerWindow, text="Login", width=int(buttonWidth / 2),
+                            bg="#5c1a56",
+                            fg="silver",
+                            font="sans 8 bold",
+                            command=lambda: goToLogin(registerWindow))
+
+    # PACKING
+
+    nameLabel.place(x=screenWidth / 2 - 190, y=screenHeight / 10 * 1.5)
+    passwordLabel.place(x=screenWidth / 2 - 190, y=screenHeight / 10 * 3.5)
+    rePasswordLabel.place(x=screenWidth / 2 - 190, y=screenHeight / 10 * 5.5)
+    nameEntry.place(x=screenWidth / 2 - 115, y=screenHeight / 10 * 1.5)
+    passwordEntry.place(x=screenWidth / 2 - 115, y=screenHeight / 10 * 3.5)
+    rePasswordEntry.place(x=screenWidth / 2 - 115, y=screenHeight / 10 * 5.5)
+    registerButton.place(x=150, y=screenHeight / 10 * 7)
+    loginButton.place(x=150, y=screenHeight / 10 * 8.5)
+    registerWindow.mainloop()
+
+
+def loginWindow():
+    # Login Window
+    loginWindow = tk.Tk()
+    loginWindow.top_bar = tk.Frame(loginWindow, bg="Red", cursor="sizing")
+    loginWindow.title("Login")
+    loginWindow.configure(bg="#5a5b5e")
+    loginWindow.resizable(False, False)
+    # SCREEN SIZE
+    screenWidth = round(loginWindow.winfo_screenwidth() * 0.3)
+    screenHeight = round(loginWindow.winfo_screenheight() * 0.3)
+    loginWindow.geometry("%dx%d" % (screenWidth, screenHeight))
+    # BUTTON SIZE
+    buttonWidth = 30
+
+    # LIST SIZE
+    listBoxWidth = 80
+    listBoxHeight = 35
+
+    # FORM
+
+    loginWindow.configure(background="grey")
+    nameLabel = tk.Label(loginWindow, text='Name', width=10, bg="#5c1a56",
+                         fg="silver", font="sans 8 bold", )
+
+    passwordLabel = tk.Label(loginWindow, text='Password', width=10, bg="#5c1a56",
+                             fg="silver", font="sans 8 bold", )
+
+    nameEntry = tk.Entry(loginWindow, width=50)
+
+    passwordEntry = tk.Entry(loginWindow, show="\u2022", width=50)
+
+    loginButton = tk.Button(loginWindow, width=int(buttonWidth / 2), text='Login', bg="#5c1a56",
+                            fg="silver", font="sans 8 bold",
+                            command=lambda: login(nameEntry, passwordEntry, loginWindow))
+
+    # BUTTON
+    registerButton = tk.Button(loginWindow, text="Register", width=int(buttonWidth / 2),
+                               bg="#5c1a56",
+                               fg="silver",
+                               font="sans 8 bold",
+                               command=lambda: goToRegister(loginWindow))
+
+    # PACKING
+
+    nameLabel.place(x=screenWidth / 2 - 190, y=screenHeight / 10 * 2)
+    passwordLabel.place(x=screenWidth / 2 - 190, y=screenHeight / 10 * 4)
+    nameEntry.place(x=screenWidth / 2 - 115, y=screenHeight / 10 * 2)
+    passwordEntry.place(x=screenWidth / 2 - 115, y=screenHeight / 10 * 4)
+    loginButton.place(x=150, y=screenHeight / 10 * 6)
+    registerButton.place(x=150, y=screenHeight / 10 * 8)
+    loginWindow.mainloop()
 
 
 def addSongWindow():
@@ -46,20 +261,24 @@ def addSongWindow():
     # FORM
 
     addWindow.configure(background="grey")
-    songLabel = tk.Label(addWindow, text='Search Song', width=10, bg="#5c1a56",
+    songLabel = tk.Label(addWindow, text='Title', width=10, bg="#5c1a56",
                          fg="silver")
-    authorLabel = tk.Label(addWindow, text='Search Song', width=10, bg="#5c1a56",
+    authorLabel = tk.Label(addWindow, text='Singer', width=10, bg="#5c1a56",
                            fg="silver")
-    songImageLabel = tk.Label(addWindow, text='Search Song', width=10, bg="#5c1a56",
+    genreLabel = tk.Label(addWindow, text='Genre', width=10, bg="#5c1a56",
+                          fg="silver")
+    songImageLabel = tk.Label(addWindow, text='Image URL', width=10, bg="#5c1a56",
                               fg="silver")
-    songFileLabel = tk.Label(addWindow, text='Search Song', width=10, bg="#5c1a56",
+    songFileLabel = tk.Label(addWindow, text='Song URL', width=10, bg="#5c1a56",
                              fg="silver")
     songEntry = tk.Entry(addWindow, width=70)
     authorEntry = tk.Entry(addWindow, width=70)
+    genreEntry = tk.Entry(addWindow, width=70)
     songImageEntry = tk.Entry(addWindow, width=70)
     songFileEntry = tk.Entry(addWindow, width=70)
     addButton = tk.Button(addWindow, width=int(buttonWidth / 2), text='Submit', bg="#5c1a56",
-                          fg="silver")
+                          fg="silver",
+                          command=lambda: postSong(songEntry, authorEntry, genreEntry, songImageEntry, songFileEntry))
 
     # BUTTON
     buttonBack = tk.Button(addWindow, text="Music App", width=int(buttonWidth / 2),
@@ -68,18 +287,18 @@ def addSongWindow():
                            font="sans 8 bold",
                            command=lambda: goBackToMainWindow(addWindow))
 
-    print(buttonWidth)
-    print(screenWidth)
     # PACKING
     songLabel.place(x=screenWidth / 2 - 240, y=screenHeight / 10 * 2)
     authorLabel.place(x=screenWidth / 2 - 240, y=screenHeight / 10 * 3)
-    songImageLabel.place(x=screenWidth / 2 - 240, y=screenHeight / 10 * 4)
-    songFileLabel.place(x=screenWidth / 2 - 240, y=screenHeight / 10 * 5)
+    genreLabel.place(x=screenWidth / 2 - 240, y=screenHeight / 10 * 4)
+    songImageLabel.place(x=screenWidth / 2 - 240, y=screenHeight / 10 * 5)
+    songFileLabel.place(x=screenWidth / 2 - 240, y=screenHeight / 10 * 6)
     songEntry.place(x=screenWidth / 2 - 165, y=screenHeight / 10 * 2)
     authorEntry.place(x=screenWidth / 2 - 165, y=screenHeight / 10 * 3)
-    songImageEntry.place(x=screenWidth / 2 - 165, y=screenHeight / 10 * 4)
-    songFileEntry.place(x=screenWidth / 2 - 165, y=screenHeight / 10 * 5)
-    addButton.place(x=281, y=screenHeight / 10 * 6)
+    genreEntry.place(x=screenWidth / 2 - 165, y=screenHeight / 10 * 4)
+    songImageEntry.place(x=screenWidth / 2 - 165, y=screenHeight / 10 * 5)
+    songFileEntry.place(x=screenWidth / 2 - 165, y=screenHeight / 10 * 6)
+    addButton.place(x=281, y=screenHeight / 10 * 7)
     buttonBack.place(x=281, y=screenHeight / 10 * 9.5)
     addWindow.mainloop()
 
@@ -117,6 +336,7 @@ def searchFrame():
         height=listBoxHeight,
         width=listBoxWidth,
         selectmode='extended')
+
     for i in range(100):
         listbox.insert(tk.END, "Song " + str(i))
 
@@ -157,7 +377,7 @@ def searchFrame():
     searchWindow.mainloop()
 
 
-def func():
+def mainWindow():
     # Functions
 
     def items_selected(event):
@@ -209,22 +429,23 @@ def func():
     labelHeight = 10
 
     # PROGRESS BAR
-    pb = Progressbar(root,orient=tk.HORIZONTAL,length=500,mode='determinate')
+    pb = Progressbar(root, orient=tk.HORIZONTAL, length=500, mode='determinate')
 
     # LIST BOX
-    listbox = tk.Listbox(root,height=listBoxHeight,width=listBoxWidth,selectmode='extended')
+    listbox = tk.Listbox(root, height=listBoxHeight, width=listBoxWidth, selectmode='extended')
     scrollbar = tk.Scrollbar(listbox)
     listbox.config(yscrollcommand=scrollbar.set)
     scrollbar.config(command=listbox.yview)
     listbox.bind('<<ListboxSelect>>', items_selected)
-    for i in range(100):
-        listbox.insert(tk.END, "Song " + str(i))
-
-
+    songRow = getSongs.getAllSongs()
+    for row in songRow:
+        title = row[1]
+        singer = row[2]
+        listbox.insert(tk.END, "  " * 3 + title + "  -  " + singer)
 
     # BUTTON
     playButton = tk.Button(root, text="Play", height=buttonHeight, width=buttonWidth, image=pixelVirtual, bg="#5c1a56",
-                           fg="silver", command=startPB,
+                           fg="silver",
                            compound="c", font="sans 8 bold")
     nextButton = tk.Button(root, text="Next", height=buttonHeight, width=buttonWidth, image=pixelVirtual, bg="#5c1a56",
                            fg="silver",
