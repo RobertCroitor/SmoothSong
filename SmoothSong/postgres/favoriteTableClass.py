@@ -5,6 +5,28 @@ con = psycopg2.connect(database="postgres", user="postgres", password="postgres"
 
 class Favorites:
     @staticmethod
+    def deleteTable():
+        cur = con.cursor()
+        postgres_insert_query = "DROP TABLE favorites"
+        cur.execute(postgres_insert_query)
+        con.commit()
+        return True
+
+    @staticmethod
+    def createTable():
+        cur = con.cursor()
+        cur.execute('''CREATE TABLE favorites
+              (id SERIAL PRIMARY KEY     NOT NULL,
+              userID text NOT NULL,
+              title           TEXT    NOT NULL,
+              singer            TEXT    NOT NULL,
+              genre        TEXT,
+              image        TEXT,
+              url        TEXT);''')
+        con.commit()
+        return True
+
+    @staticmethod
     def insertSong(userID, title, singer, genre, imgURL, songURL):
         cur = con.cursor()
         postgres_insert_query = "INSERT INTO favorites (userID,title,singer,genre,image,url) VALUES (%s,%s,%s,%s,%s,%s)"

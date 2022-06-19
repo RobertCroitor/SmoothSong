@@ -34,3 +34,8 @@ class Songs:
         cur.execute("""DELETE FROM songs WHERE id = %s """, [stringSongID, ])
         con.commit()
         return True
+
+
+song = Songs()
+rows = song.getAllSongs()
+print(rows)

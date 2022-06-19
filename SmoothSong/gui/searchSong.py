@@ -1,7 +1,4 @@
 import tkinter as tk
-import webbrowser
-from PIL import ImageTk, Image
-import requests
 from PIL import ImageTk, Image
 
 from postgres import songTableClass as songClass
@@ -45,9 +42,81 @@ def saveToFavorites(listbox, userID):
             tk.messagebox.showwarning(title="Error", message="Adding the song to favorites failed")
 
 
-def openPayPal():
-    url = "https://www.paypal.com/ro/business"
-    webbrowser.open(url, new=1)
+def resetListbox(listbox):
+    listbox.delete(0, tk.END)
+    songRow = song.getAllSongs()
+    random.shuffle(songRow)
+    for row in songRow:
+        title = row[1]
+        singer = row[2]
+        listbox.insert(tk.END, title + "  -  " + singer)
+
+
+def searchByAuthor(listbox, titleEntry):
+    count = 0
+    title = (titleEntry.get())
+    rows = song.getAllSongs()
+    listbox.delete(0, tk.END)
+    for row in rows:
+        dbAuthor = row[2]
+
+        if title.upper() in dbAuthor.upper():
+            dbTitle = row[1]
+            listbox.insert(tk.END, dbTitle + "  -  " + dbAuthor)
+            count += 1
+    if count != 0:
+        if count == 1:
+            tk.messagebox.showwarning(title="Success", message="Found " + str(count) + " match!")
+        else:
+            tk.messagebox.showwarning(title="Success", message="Found " + str(count) + " matches!")
+    else:
+        resetListbox(listbox)
+        tk.messagebox.showwarning(title="Success", message="Found " + str(count) + " matches!")
+
+
+def searchByGenre(listbox, titleEntry):
+    count = 0
+    title = (titleEntry.get())
+    rows = song.getAllSongs()
+    listbox.delete(0, tk.END)
+    for row in rows:
+        dbGenre = row[3]
+        print(dbGenre)
+        if title.upper() in dbGenre.upper():
+            dbTitle = row[1]
+            dbAuthor = row[2]
+            listbox.insert(tk.END, dbTitle + "  -  " + dbAuthor)
+            count += 1
+    if count != 0:
+        if count == 1:
+            tk.messagebox.showwarning(title="Success", message="Found " + str(count) + " match!")
+        else:
+            tk.messagebox.showwarning(title="Success", message="Found " + str(count) + " matches!")
+    else:
+        resetListbox(listbox)
+        tk.messagebox.showwarning(title="Success", message="Found " + str(count) + " matches!")
+
+
+def searchByTitle(listbox, titleEntry):
+    count = 0
+    title = (titleEntry.get())
+    rows = song.getAllSongs()
+    listbox.delete(0, tk.END)
+    for row in rows:
+        dbTitle = row[1]
+
+        if title.upper() in dbTitle.upper():
+            dbAuthor = row[2]
+            listbox.insert(tk.END, dbTitle + "  -  " + dbAuthor)
+            count += 1
+    if count != 0:
+        if count == 1:
+            tk.messagebox.showwarning(title="Success", message="Found " + str(count) + " match!")
+        else:
+            tk.messagebox.showwarning(title="Success", message="Found " + str(count) + " matches!")
+    else:
+        resetListbox(listbox)
+        tk.messagebox.showwarning(title="Success", message="Found " + str(count) + " matches!")
 
 
 def getSelectedItemFromListbox(listbox):
@@ -129,13 +198,18 @@ def searchSongWindow(userID):
     modify.focus_set()
 
     searchAuthor = tk.Button(searchWindow, width=int(buttonWidth / 2), text='Search Author', bg="#5c1a56",
-                             fg="silver")
+                             fg="silver", command=lambda: [
+            searchByAuthor(listbox, modify)])
 
     searchSong = tk.Button(searchWindow, width=int(buttonWidth / 2), text='Search Song', bg="#5c1a56",
-                           fg="silver")
-    reset = tk.Button(searchWindow, width=int(buttonWidth / 2), text='Reset', bg="#5c1a56",
-                      fg="silver")
-
+                           fg="silver", command=lambda: [
+            searchByTitle(listbox, modify)])
+    searchGenre = tk.Button(searchWindow, width=int(buttonWidth / 2), text='Search Genre', bg="#5c1a56",
+                            fg="silver", command=lambda: [
+            searchByGenre(listbox, modify)])
+    resetButton = tk.Button(searchWindow, width=int(buttonWidth / 2), text='Reset', bg="#5c1a56",
+                            fg="silver", command=lambda: [
+            resetListbox(listbox)])
     # BUTTON
     buttonBack = tk.Button(searchWindow, text="Music App", width=int(buttonWidth / 2),
                            bg="#5c1a56",
@@ -156,11 +230,12 @@ def searchSongWindow(userID):
     searchLabel.pack(side=tk.LEFT)
     modify.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
     listbox.place(x=screenWidth / 2 - listBoxWidth / 2 * 6, y=0 + (4 * buttonHeight))
-    buttonBack.place(x=screenWidth / 2 - (buttonWidth * 2), y=screenHeight - 1 * buttonHeight)
+    buttonBack.place(x=screenWidth / 2 - (buttonWidth * 2) + 15, y=screenHeight - 1 * buttonHeight)
     saveFavorite.place(x=screenWidth / 2 - (buttonWidth * 4), y=screenHeight - 2.5 * buttonHeight)
     download.place(x=screenWidth / 2 + (buttonWidth * 1), y=screenHeight - 2.5 * buttonHeight)
     searchAuthor.place(x=screenWidth / 2 + listBoxWidth / 2 * 6 - buttonWidth * 3.8, y=1.5 * buttonHeight)
     searchSong.place(x=screenWidth / 2 - listBoxWidth / 2 * 6, y=1.5 * buttonHeight)
-    reset.place(x=screenWidth / 2 - (buttonWidth * 2), y=1.5 * buttonHeight)
+    searchGenre.place(x=screenWidth / 2 - (buttonWidth * 2), y=1.5 * buttonHeight)
+    resetButton.place(x=screenWidth / 2 - (buttonWidth * 2), y=2.5 * buttonHeight + 5)
     searchFrame.place(x=screenWidth / 2 - listBoxWidth / 2 * 6, y=10)
     searchWindow.mainloop()

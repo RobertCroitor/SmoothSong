@@ -21,7 +21,7 @@ favorite = favoritesClass.Favorites()
 
 def changeWindowToAddSong(window, userID):
     window.destroy()
-    addSong.song(userID)
+    addSong.addSongWindow(userID)
 
 
 def changeWindowToSearch(window, userID):
@@ -46,6 +46,49 @@ def openPayPal():
 
 def exitApp(root):
     root.destroy()
+
+
+def playlistDownload(playlistListbox, playlistEntry):
+    for i in range(playlistListbox.size()):
+        playlist = (playlistEntry.get())
+        selectedOption = playlistListbox.get(i).split("-")
+        title = selectedOption[0].strip()
+        author = selectedOption[1].strip()
+        rows = downloaded.getSongData(title, author)
+        songTitle = rows[0][1]
+        songAuthor = rows[0][2]
+        songURL = rows[0][5]
+        downloadSong.createDir(playlist)
+        downloadSong.downloadPlaylist(songTitle, songAuthor, songURL, playlist)
+
+
+def clearFavoritesFunction(favoritesListbox):
+    confirmation = favorite.deleteTable()
+    if confirmation:
+        confirmation = favorite.createTable()
+        if confirmation:
+            favoritesListbox.delete(0, tk.END)
+
+
+def clearPlaylistFunction(playlistListBox):
+    playlistListBox.delete(0, tk.END)
+
+
+def removeItemPLaylistFunction(playlistListBox):
+    if len(playlistListBox.curselection()) > 0:
+        for i in reversed(playlistListBox.curselection()):
+            playlistListBox.delete(i)
+
+    else:
+        tk.messagebox.showwarning(title="Error", message="Nothing selected to delete")
+
+
+def addToPlaylist(favoritesListbox, playlistListBox):
+    if len(favoritesListbox.curselection()) > 0:
+        for i in favoritesListbox.curselection():
+            playlistListBox.insert(tk.END, favoritesListbox.get(i))
+    else:
+        tk.messagebox.showwarning(title="Error", message="Nothing selected to add")
 
 
 def getSelectedItemFromListbox(listbox):
@@ -145,6 +188,31 @@ def mainWindow(userID):
     # LABEL SIZE
     labelWidth = 50
 
+    artistName = tk.StringVar()
+    labelArtist = tk.Label(root, textvariable=artistName, relief=tk.RAISED, bg="#5c1a56",
+                           fg="silver", width=labelWidth)
+    artistName.set("Song title placeholder")
+
+    songName = tk.StringVar()
+    labelSong = tk.Label(root, textvariable=songName, relief=tk.RAISED, bg="#5c1a56",
+                         fg="silver", width=labelWidth)
+    songName.set("Author name placeholder")
+    genreName = tk.StringVar()
+    labelGenre = tk.Label(root, textvariable=genreName, relief=tk.RAISED, bg="#5c1a56",
+                          fg="silver", width=labelWidth)
+    genreName.set("Genre name placeholder")
+
+    # IMAGE
+
+    imgURL = "assets/placeholder.png"
+    img = (Image.open(imgURL))
+    resized_image = img.resize((canvasWidth, canvasHeight), Image.ANTIALIAS)
+    new_image = ImageTk.PhotoImage(resized_image)
+    canvas = tk.Canvas(root, width=canvasWidth, height=canvasHeight, borderwidth=0,
+                       highlightthickness=0, )
+    image_container = canvas.create_image(0, 0, anchor=tk.NW, image=new_image)
+    # LABEL
+
     # LIST BOX
     favoritesListboxString = tk.StringVar()
     favoritesListboxString.set("Favorite Songs")
@@ -186,45 +254,26 @@ def mainWindow(userID):
                                  bg="#5c1a56",
                                  fg="silver",
                                  compound="c", font="sans 8 bold",
+                                 command=lambda: [
+                                     playlistDownload(playlistListBox, playlisteNameEntry)]
                                  )
     removeSongPlaylist = tk.Button(root, text="Remove", height=buttonHeight, width=buttonWidth * 2.5,
                                    image=pixelVirtual,
                                    bg="#5c1a56",
                                    fg="silver",
                                    compound="c", font="sans 8 bold",
+                                   command=lambda: [
+                                       removeItemPLaylistFunction(playlistListBox)]
                                    )
+
     clearPlaylist = tk.Button(root, text="Clear", height=buttonHeight, width=buttonWidth * 2.5,
                               image=pixelVirtual,
                               bg="#5c1a56",
                               fg="silver",
                               compound="c", font="sans 8 bold",
+                              command=lambda: [
+                                  clearPlaylistFunction(playlistListBox)]
                               )
-
-    artistName = tk.StringVar()
-    labelArtist = tk.Label(root, textvariable=artistName, relief=tk.RAISED, bg="#5c1a56",
-                           fg="silver", width=labelWidth)
-    artistName.set("Song title placeholder")
-
-    songName = tk.StringVar()
-    labelSong = tk.Label(root, textvariable=songName, relief=tk.RAISED, bg="#5c1a56",
-                         fg="silver", width=labelWidth)
-    songName.set("Author name placeholder")
-    genreName = tk.StringVar()
-    labelGenre = tk.Label(root, textvariable=genreName, relief=tk.RAISED, bg="#5c1a56",
-                          fg="silver", width=labelWidth)
-    genreName.set("Genre name placeholder")
-
-    # IMAGE
-
-    imgURL = "assets/placeholder.png"
-    img = (Image.open(imgURL))
-    resized_image = img.resize((canvasWidth, canvasHeight), Image.ANTIALIAS)
-    new_image = ImageTk.PhotoImage(resized_image)
-    canvas = tk.Canvas(root, width=canvasWidth, height=canvasHeight, borderwidth=0,
-                       highlightthickness=0, )
-    image_container = canvas.create_image(0, 0, anchor=tk.NW, image=new_image)
-    # LABEL
-
     # BUTTON
     adminButton = tk.Button(root, text="Admin", height=buttonHeight, width=50, image=pixelVirtual,
                             bg="#5c1a56",
@@ -288,12 +337,16 @@ def mainWindow(userID):
                             bg="#5c1a56",
                             fg="silver",
                             compound="c", font="sans 8 bold",
+                            command=lambda: [
+                                clearFavoritesFunction(favoritesListbox)]
                             )
     addPlayListButton = tk.Button(root, text="Add Playlist", height=buttonHeight, width=buttonWidth * 2.5,
                                   image=pixelVirtual,
                                   bg="#5c1a56",
                                   fg="silver",
                                   compound="c", font="sans 8 bold",
+                                  command=lambda: [
+                                      addToPlaylist(favoritesListbox, playlistListBox)]
                                   )
     # PACKING
 
