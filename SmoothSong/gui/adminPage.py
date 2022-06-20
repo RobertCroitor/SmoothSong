@@ -1,145 +1,111 @@
 import tkinter as tk
-from tkinter.messagebox import showinfo
-
 from gui import player
-from postgres import songTableClass as songClass
-from postgres import userTableClass as userClass
-from PIL import ImageTk, Image
+from functions import listboxManagement
+from functions import adminManagement
+from functions import windowManagement
 
-song = songClass.Songs()
-user = userClass.Users()
+# CLASS INITIALISATION
+windowManagement = windowManagement.WindowManagementClass()
+listboxManagement = listboxManagement.ListboxManagementClass()
+adminManagement = adminManagement.AdminManagementClass()
 
 
+# BACK FUNCTION
 def goBackToMainWindow(window, userID):
     window.destroy()
     player.mainWindow(userID)
 
 
-def printSongs():
-    rows = song.getAllSongs()
-    print()
-    for row in rows:
-        print(row)
-
-
-def printUsers():
-    rows = user.getAllUsers()
-    print()
-    for row in rows:
-        print(row)
-
-
-def deleteUser(userEntry, songEntry):
-    userID = (userEntry.get())
-    if userID == "":
-        tk.messagebox.showwarning(title="Error", message="You cannot have empty fields")
-    else:
-        confirmation = user.deleteUser(userID)
-        songEntry.delete(0, tk.END)
-        userEntry.delete(0, tk.END)
-        if confirmation:
-            tk.messagebox.showwarning(title="Error", message="Success")
-        else:
-            tk.messagebox.showwarning(title="Error", message="Failure")
-
-
-def giveAdmin(userEntry, songEntry):
-    userID = (userEntry.get())
-    if userID == "":
-        tk.messagebox.showwarning(title="Error", message="You cannot have empty fields")
-    else:
-        confirmation = user.insertAdmin(userID)
-        songEntry.delete(0, tk.END)
-        userEntry.delete(0, tk.END)
-        if confirmation:
-            tk.messagebox.showwarning(title="Error", message="Success")
-        else:
-            tk.messagebox.showwarning(title="Error", message="Failure")
-
-
-def deleteSong(userEntry, songEntry):
-    songID = (songEntry.get())
-
-    if songID == "":
-        tk.messagebox.showwarning(title="Error", message="You cannot have empty fields")
-    else:
-        confirmation = song.deleteSong(songID)
-        songEntry.delete(0, tk.END)
-        userEntry.delete(0, tk.END)
-        if confirmation:
-            tk.messagebox.showwarning(title="Error", message="Success")
-        else:
-            tk.messagebox.showwarning(title="Error", message="Failure")
-
-
 def adminPanelWindow(userID):
-    # Second Window
-    adminWindow = tk.Tk()
-    adminWindow.top_bar = tk.Frame(adminWindow, bg="Red", cursor="sizing")
-    adminWindow.title("Add Song")
-    adminWindow.configure(bg="#5a5b5e")
-    adminWindow.resizable(False, False)
-    # SCREEN SIZE
-    screenWidth = round(adminWindow.winfo_screenwidth() * 0.3)
-    screenHeight = round(adminWindow.winfo_screenheight() * 0.3)
-    adminWindow.geometry("%dx%d" % (screenWidth, screenHeight))
-    imgURL = "assets/bg2.jpg"
-    img = (Image.open(imgURL))
-    resized_image = img.resize((screenWidth, screenHeight), Image.ANTIALIAS)
-    new_image = ImageTk.PhotoImage(resized_image)
-    bg = tk.Label(
-        adminWindow,
-        image=new_image, borderwidth=0,
-        highlightthickness=0
-    )
-    bg.imgref = new_image
-    bg.place(x=0, y=0)
-    # BUTTON SIZE
+    # WINDOW INITIALISATION
+    window = tk.Tk()
+
+    # MEASUREMENTS
+    screenWidth = 820
+    screenHeight = 230
     buttonWidth = 30
 
-    # FORM
+    # WINDOW CONFIGURATION
+    window.geometry("%dx%d" % (screenWidth, screenHeight))
+    window.configure(bg="silver")
+    window.top_bar = tk.Frame(window, bg="Red", cursor="sizing")
+    window.title("Admin Panel")
+    window.resizable(False, False)
+    pixelVirtual = tk.PhotoImage(width=1, height=1)
 
-    adminWindow.configure(background="grey")
-    userLabel = tk.Label(adminWindow, text='userID', width=10, bg="#5c1a56",
+    # CREATION
+    # LABEL CREATION
+    userLabel = tk.Label(window, text='userID', width=10, bg="#5c1a56",
                          fg="silver")
-    songLabel = tk.Label(adminWindow, text='songID', width=10, bg="#5c1a56",
+    songLabel = tk.Label(window, text='songID', width=10, bg="#5c1a56",
                          fg="silver")
 
-    userEntry = tk.Entry(adminWindow, width=30)
-    songEntry = tk.Entry(adminWindow, width=30)
+    # ENTRY CREATION
+    userEntry = tk.Entry(window, width=30)
+    songEntry = tk.Entry(window, width=30)
 
-    deleteUserButton = tk.Button(adminWindow, width=int(buttonWidth / 3), text='Delete User', bg="#5c1a56",
-                                 fg="silver",
-                                 command=lambda: deleteUser(userEntry, songEntry))
-    deleteSongButton = tk.Button(adminWindow, width=int(buttonWidth / 3), text='Delete Song', bg="#5c1a56",
-                                 fg="silver",
-                                 command=lambda: deleteSong(userEntry, songEntry))
-    updateUser = tk.Button(adminWindow, width=int(buttonWidth / 3), text='Update', bg="#5c1a56",
-                           fg="silver",
-                           command=lambda: giveAdmin(userEntry, songEntry))
+    # LISTBOX CREATION
+    adminListbox = tk.Listbox(window, height=8, width=60, selectmode='multiple',
+                              borderwidth=0,
+                              highlightthickness=0)
+    scrollbar = tk.Scrollbar(adminListbox)
 
-    printUsersButton = tk.Button(adminWindow, width=5, text='Users', bg="#5c1a56",
+    # BUTTON CREATION
+    deleteUserButton = tk.Button(window, width=int(buttonWidth / 3), text='Delete User', bg="#5c1a56",
                                  fg="silver",
-                                 command=lambda: printUsers())
-    printSongsButton = tk.Button(adminWindow, width=5, text='Songs', bg="#5c1a56",
+                                 command=lambda: adminManagement.deleteUserAdmin(userEntry, songEntry))
+    deleteSongButton = tk.Button(window, width=int(buttonWidth / 3), text='Delete Song', bg="#5c1a56",
                                  fg="silver",
-                                 command=lambda: printSongs())
-    # BUTTON
-    buttonBack = tk.Button(adminWindow, text="Back", width=5,
+                                 command=lambda: adminManagement.deleteSongAdmin(userEntry, songEntry))
+    giveAdminButton = tk.Button(window, width=int(buttonWidth / 3), text='Update', bg="#5c1a56",
+                                fg="silver",
+                                command=lambda: adminManagement.giveUserAdminRights(userEntry, songEntry))
+
+    showUserDataButton = tk.Button(window, width=5, text='Users', bg="#5c1a56",
+                                   fg="silver",
+                                   command=lambda: listboxManagement.getUsersDataAdminListbox(adminListbox))
+    showSongDataButton = tk.Button(window, width=5, text='Songs', bg="#5c1a56",
+                                   fg="silver",
+                                   command=lambda: listboxManagement.getSongsDataAdminListbox(adminListbox))
+    backButton = tk.Button(window, text="Back", width=5,
                            bg="#5c1a56",
                            fg="silver",
                            font="sans 8 bold",
-                           command=lambda: goBackToMainWindow(adminWindow, userID))
+                           command=lambda: goBackToMainWindow(window, userID))
+    exitButton = tk.Button(window, text="Leave", height=20, width=40, image=pixelVirtual,
+                           bg="#5c1a56",
+                           fg="silver",
+                           compound="c", font="sans 8 bold", command=lambda: [windowManagement.exitApp(window)])
+    # CREATION END
 
-    # PACKING
-    songLabel.place(x=screenWidth / 2 - 140, y=screenHeight / 10 * 2)
-    userLabel.place(x=screenWidth / 2 - 140, y=screenHeight / 10 * 3)
-    songEntry.place(x=screenWidth / 2 - 65, y=screenHeight / 10 * 2)
-    userEntry.place(x=screenWidth / 2 - 65, y=screenHeight / 10 * 3)
-    deleteSongButton.place(x=screenWidth / 2 - 140, y=screenHeight / 10 * 5)
-    deleteUserButton.place(x=screenWidth / 2 - 50, y=screenHeight / 10 * 5)
-    updateUser.place(x=screenWidth / 2 + 40, y=screenHeight / 10 * 5)
-    buttonBack.place(x=screenWidth - 45, y=screenHeight / 10 * 8.9)
-    printSongsButton.place(x=1, y=screenHeight / 10 * 8.9)
-    printUsersButton.place(x=50, y=screenHeight / 10 * 8.9)
-    adminWindow.mainloop()
+    # CONFIGURATION
+    # LISTBOX CONFIGURATION
+    adminListbox.config(yscrollcommand=scrollbar.set)
+    adminListbox.configure(justify="center")
+    adminListbox.configure(background="#260033", foreground="white")
+    scrollbar.config(command=adminListbox.yview)
+    # CONFIGURATION END
+
+    # PLACING
+    # LABEL PLACING
+    songLabel.place(x=screenWidth * 0.75 - 140, y=screenHeight / 10 * 2)
+    userLabel.place(x=screenWidth * 0.75 - 140, y=screenHeight / 10 * 3)
+
+    # ENTRY PLACING
+    songEntry.place(x=screenWidth * 0.75 - 65, y=screenHeight / 10 * 2)
+    userEntry.place(x=screenWidth * 0.75 - 65, y=screenHeight / 10 * 3)
+
+    # LISTBOX PLACING
+    adminListbox.place(x=screenWidth * 0.25 - 160, y=screenHeight / 10 * 1.25)
+
+    # BUTTON PLACING
+    deleteSongButton.place(x=screenWidth * 0.75 - 140, y=screenHeight / 10 * 5)
+    deleteUserButton.place(x=screenWidth * 0.75 - 50, y=screenHeight / 10 * 5)
+    giveAdminButton.place(x=screenWidth * 0.75 + 40, y=screenHeight / 10 * 5)
+    showSongDataButton.place(x=175, y=screenHeight / 10 * 8)
+    showUserDataButton.place(x=235, y=screenHeight / 10 * 8)
+    backButton.place(x=screenWidth - 45, y=screenHeight / 10 * 8.9)
+    exitButton.place(x=screenWidth - 50, y=2)
+    # PLACING END
+
+    window.mainloop()

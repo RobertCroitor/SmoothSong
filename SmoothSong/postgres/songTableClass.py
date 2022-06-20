@@ -4,13 +4,7 @@ con = psycopg2.connect(database="postgres", user="postgres", password="postgres"
 
 
 class Songs:
-    @staticmethod
-    def getAllSongs():
-        cur = con.cursor()
-        cur.execute("SELECT * from songs ")
-        rows = cur.fetchall()
-        return rows
-
+    # INSERT ONE SONG IN THE SONGS TABLE
     @staticmethod
     def insertSong(title, singer, genre, imgURL, songURL):
         cur = con.cursor()
@@ -20,13 +14,45 @@ class Songs:
         con.commit()
         return True
 
+    # GET FUNCTIONS
+    # GET ALL SONGS IN THE SONGS TABLE
     @staticmethod
-    def getSongsByTitle(title):
+    def getAllSongs():
         cur = con.cursor()
-        cur.execute("""SELECT * from songs WHERE title = %s """, [title, ])
+        cur.execute("SELECT * from songs ")
         rows = cur.fetchall()
         return rows
 
+    # GET SONG DATA FROM SONG TABLE FILTERING THE RESULTS BY SONG TITLE AND SINGER
+    @staticmethod
+    def getSongData(title, singer):
+        cur = con.cursor()
+        cur.execute("""SELECT * from songs WHERE title = %s AND singer=%s """, [title, singer, ])
+        rows = cur.fetchall()
+        return rows
+
+        # GET SONG DATA FROM SONG TABLE FILTERING THE RESULTS BY SONG TITLE AND SINGER
+
+    @staticmethod
+    def getSongCountByTitleAndSinger(title, singer):
+        cur = con.cursor()
+        cur.execute("""SELECT COUNT(*) from songs WHERE title = %s AND singer=%s """, [title, singer, ])
+        rows = cur.fetchall()
+        return rows
+
+    # GET SONG DATA FROM SONG TABLE FILTERING THE RESULTS BY SONG ID
+    @staticmethod
+    def getSongByID(songID):
+        cur = con.cursor()
+        stringSongID = str(songID)
+        cur.execute("""SELECT * from songs WHERE id = %s  """, [stringSongID])
+        rows = cur.fetchall()
+        return rows
+
+    # GET FUNCTIONS END
+
+    # DELETE FUNCTIONS
+    # DELETE A SONG USING THE SONG ID
     @staticmethod
     def deleteSong(songID):
         cur = con.cursor()
@@ -34,8 +60,4 @@ class Songs:
         cur.execute("""DELETE FROM songs WHERE id = %s """, [stringSongID, ])
         con.commit()
         return True
-
-
-song = Songs()
-rows = song.getAllSongs()
-print(rows)
+    # DELETE FUNCTIONS END
