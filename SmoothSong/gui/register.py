@@ -9,19 +9,19 @@ authentificationManager = authentificationManager.AuthentificationManagerClass()
 
 
 # SWAP PAGE FUNCTIONS
-def goToLogin(window):
+def goToLogin(window, mode):
     window.destroy()
-    login.loginFormWindow()
+    login.loginFormWindow(mode)
 
 
 # REGISTER FUNCTION
-def register(nameEntry, passwordEntry, rePasswordEntry, window):
+def register(nameEntry, passwordEntry, rePasswordEntry, window, mode):
     confirmation = authentificationManager.register(nameEntry, passwordEntry, rePasswordEntry)
     if confirmation:
-        goToLogin(window)
+        goToLogin(window, mode)
 
 
-def registerFormWindow():
+def registerFormWindow(mode):
     # WINDOW INITIALISATION
     window = tk.Tk()
 
@@ -29,47 +29,54 @@ def registerFormWindow():
     screenWidth = 410
     screenHeight = 384
     buttonWidth = 30
-    buttonHeight = 30
 
     # WINDOW CONFIGURATION
-    window.geometry("%dx%d" % (screenWidth, screenHeight))
-    window.configure(bg="silver")
+    if mode == "WHITE":
+        bgColor = "#f5faf5"
+        widgetColor = "#c0c2c0"
+        textColor = "#000000"
+    else:
+        bgColor = "#3d3d3d"
+        widgetColor = "#9c9c9c"
+        textColor = "black"
+    window.geometry("410x384+30+30")
+    window.configure(bg=bgColor)
     window.top_bar = tk.Frame(window, bg="Red", cursor="sizing")
     window.title("Register")
     window.resizable(False, False)
     pixelVirtual = tk.PhotoImage(width=1, height=1)
     # CREATION
     # LABEL CREATION
-    nameLabel = tk.Label(window, text='Name', width=10, bg="#5c1a56",
-                         fg="silver", font="sans 8 bold", )
+    nameLabel = tk.Label(window, text='Name', width=10, bg=widgetColor,
+                         fg=textColor, font="sans 8 bold", )
 
-    passwordLabel = tk.Label(window, text='Password', width=10, bg="#5c1a56",
-                             fg="silver", font="sans 8 bold", )
+    passwordLabel = tk.Label(window, text='Password', width=10, bg=widgetColor,
+                             fg=textColor, font="sans 8 bold", )
 
     rePasswordLabel = tk.Label(window, text='Re-Password', width=10,
-                               bg="#5c1a56",
-                               fg="silver", font="sans 8 bold", )
+                               bg=widgetColor,
+                               fg=textColor, font="sans 8 bold", )
 
     # ENTRY CREATION
-    nameEntry = tk.Entry(window, width=50)
-    passwordEntry = tk.Entry(window, show="\u2022", width=50)
-    rePasswordEntry = tk.Entry(window, show="\u2022", width=50)
+    nameEntry = tk.Entry(window, bg=widgetColor, fg=textColor, width=50)
+    passwordEntry = tk.Entry(window, bg=widgetColor, fg=textColor, show="\u2022", width=50)
+    rePasswordEntry = tk.Entry(window, bg=widgetColor, fg=textColor, show="\u2022", width=50)
 
     # BUTTON CREATION
     registerButton = tk.Button(window, width=int(buttonWidth / 2),
-                               text='Register', bg="#5c1a56",
-                               fg="silver", font="sans 8 bold",
+                               text='Register', bg=widgetColor,
+                               fg=textColor, font="sans 8 bold",
                                command=lambda: register(nameEntry, passwordEntry,
                                                         rePasswordEntry,
-                                                        window))
+                                                        window, mode))
     loginButton = tk.Button(window, text="Login", width=int(buttonWidth / 2),
-                            bg="#5c1a56",
-                            fg="silver",
+                            bg=widgetColor,
+                            fg=textColor,
                             font="sans 8 bold",
-                            command=lambda: goToLogin(window))
+                            command=lambda: goToLogin(window, mode))
     exitButton = tk.Button(window, text="Leave", height=20, width=40, image=pixelVirtual,
-                           bg="#5c1a56",
-                           fg="silver",
+                           bg=widgetColor,
+                           fg=textColor,
                            compound="c", font="sans 8 bold", command=lambda: [windowManagement.exitApp(window)])
     # CREATION END
 

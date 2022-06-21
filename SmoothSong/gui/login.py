@@ -9,24 +9,24 @@ authentificationManager = authentificationManager.AuthentificationManagerClass()
 
 
 # SWAP PAGE FUNCTIONS
-def goToRegister(window):
+def goToRegister(window, mode):
     window.destroy()
-    register.registerFormWindow()
+    register.registerFormWindow(mode)
 
 
-def goToMainWindow(window, userID):
+def goToMainWindow(window, userID, mode):
     window.destroy()
-    player.mainWindow(userID)
+    player.mainWindow(userID, mode)
 
 
 # LOGIN FUNCTION
-def login(nameEntry, passwordEntry, window):
+def login(nameEntry, passwordEntry, window, mode):
     userID = authentificationManager.login(nameEntry, passwordEntry)
     if userID != -1:
-        goToMainWindow(window, userID)
+        goToMainWindow(window, userID, mode)
 
 
-def loginFormWindow():
+def loginFormWindow(mode):
     # WINDOW INITIALISATION
     window = tk.Tk()
 
@@ -36,8 +36,16 @@ def loginFormWindow():
     buttonWidth = 30
 
     # WINDOW CONFIGURATION
-    window.geometry("%dx%d" % (screenWidth, screenHeight))
-    window.configure(bg="silver")
+    if mode == "WHITE":
+        bgColor = "#f5faf5"
+        widgetColor = "#c0c2c0"
+        textColor = "#000000"
+    else:
+        bgColor = "#3d3d3d"
+        widgetColor = "#9c9c9c"
+        textColor = "black"
+    window.configure(bg=bgColor)
+    window.geometry("410x230+30+30")
     window.top_bar = tk.Frame(window, bg="Red", cursor="sizing")
     window.title("Login")
     window.resizable(False, False)
@@ -45,27 +53,27 @@ def loginFormWindow():
 
     # CREATION
     # LABEL CREATION
-    nameLabel = tk.Label(window, text='Name', width=10, bg="#5c1a56",
-                         fg="silver", font="sans 8 bold", )
-    passwordLabel = tk.Label(window, text='Password', width=10, bg="#5c1a56",
-                             fg="silver", font="sans 8 bold", )
+    nameLabel = tk.Label(window, text='Name', width=10, bg=widgetColor,
+                         fg=textColor, font="sans 8 bold", )
+    passwordLabel = tk.Label(window, text='Password', width=10, bg=widgetColor,
+                             fg=textColor, font="sans 8 bold", )
 
     # ENTRY CREATION
-    nameEntry = tk.Entry(window, width=50)
-    passwordEntry = tk.Entry(window, show="\u2022", width=50)
+    nameEntry = tk.Entry(window, bg=widgetColor, fg=textColor, font="sans 8 bold", width=50)
+    passwordEntry = tk.Entry(window, bg=widgetColor, fg=textColor, show="\u2022", font="sans 8 bold", width=50)
 
     # BUTTON CREATION
-    loginButton = tk.Button(window, width=int(buttonWidth / 2), text='Login', bg="#5c1a56",
-                            fg="silver", font="sans 8 bold",
-                            command=lambda: login(nameEntry, passwordEntry, window))
+    loginButton = tk.Button(window, width=int(buttonWidth / 2), text='Login', bg=widgetColor,
+                            fg=textColor, font="sans 8 bold",
+                            command=lambda: login(nameEntry, passwordEntry, window, mode))
     registerButton = tk.Button(window, text="Register", width=int(buttonWidth / 2),
-                               bg="#5c1a56",
-                               fg="silver",
+                               bg=widgetColor,
+                               fg=textColor,
                                font="sans 8 bold",
-                               command=lambda: goToRegister(window))
+                               command=lambda: goToRegister(window, mode))
     exitButton = tk.Button(window, text="Leave", height=20, width=40, image=pixelVirtual,
-                           bg="#5c1a56",
-                           fg="silver",
+                           bg=widgetColor,
+                           fg=textColor,
                            compound="c", font="sans 8 bold", command=lambda: [windowManagement.exitApp(window)])
     # CREATION END
 

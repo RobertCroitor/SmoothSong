@@ -1,6 +1,7 @@
 from postgres import favoriteTableClass
 from postgres import songTableClass
 from postgres import userTableClass
+from postgres import quizzGameTableClass
 from musicPlayer import startMusic
 import tkinter as tk
 from tkinter.messagebox import showinfo
@@ -12,6 +13,7 @@ dataManagement = dataManagement.DataManagementClass()
 favoriteTable = favoriteTableClass.Favorites()
 songTable = songTableClass.Songs()
 userTable = userTableClass.Users()
+quizzTable = quizzGameTableClass.QuizzGame()
 
 
 # CLEAR ALL THE FILTERS AND INSERT ALL THE SONGS FROM SONG TABLE INTO SONG COLLECTION LISTBOX
@@ -30,34 +32,60 @@ class ListboxManagementClass:
     # INSERT TO FAVORITES
     @staticmethod
     def saveToFavorites(listbox, userID):
-        selectedOption = listbox.get(listbox.curselection())
-        selectedOption = selectedOption.split("-")
-        title = selectedOption[0].strip()
-        author = selectedOption[1].strip()
-        rows = songTable.getSongData(title, author)
-        title = rows[0][1]
-        author = rows[0][2]
-        count = favoriteTable.getSongsCountByTitle(title, author, userID)[0][0]
+        if len(listbox.curselection()) > 0:
+            selectedOption = listbox.get(listbox.curselection())
+            selectedOption = selectedOption.split("-")
+            title = selectedOption[0].strip()
+            author = selectedOption[1].strip()
+            rows = songTable.getSongData(title, author)
+            title = rows[0][1]
+            author = rows[0][2]
+            count = favoriteTable.getSongsCountByTitle(title, author, userID)[0][0]
 
-        if count > 0:
-            tk.messagebox.showwarning(title="Error", message="Song is already added to favorites")
-        else:
-            singer = rows[0][2]
-            genre = rows[0][3]
-            imgURL = rows[0][4]
-            songURL = rows[0][5]
-            confirmation = favoriteTable.insertSong(userID, title, singer, genre, imgURL, songURL)
-            if confirmation:
-                tk.messagebox.showwarning(title="Error", message="Song added to favorites successfully")
+            if count > 0:
+                tk.messagebox.showwarning(title="Error", message="Song is already added to favorites")
             else:
-                tk.messagebox.showwarning(title="Error", message="Adding the song to favorites failed")
+                singer = rows[0][2]
+                genre = rows[0][3]
+                imgURL = rows[0][4]
+                songURL = rows[0][5]
+                confirmation = favoriteTable.insertSong(userID, title, singer, genre, imgURL, songURL)
+                if confirmation:
+                    tk.messagebox.showwarning(title="Success", message="Song added to favorites successfully")
+                else:
+                    tk.messagebox.showwarning(title="Error", message="Adding the song to favorites failed")
+        else:
+            tk.messagebox.showwarning(title="Error", message="Nothing selected!")
 
     # ADD SONGS FROM FAVORITES TO PLAYLIST
     @staticmethod
-    def addSongToPlaylist(favoritesListbox, playlistListBox):
+    def addSongToPlaylist(favoritesListbox, playlistListBox,
+                          playlistListBoxLabel, playlistNameLabel,
+                          playlistNameEntry, downloadPlaylistButton,
+                          removePlaylistButton, clearPlaylistButton):
         if len(favoritesListbox.curselection()) > 0:
             for i in favoritesListbox.curselection():
-                playlistListBox.insert(tk.END, favoritesListbox.get(i))
+                isPresent = 0
+                songToInsert = favoritesListbox.get(i)
+                for j in range(playlistListBox.size()):
+                    songInPlaylist = playlistListBox.get(j)
+                    if songInPlaylist == songToInsert:
+                        isPresent = 1
+                if isPresent == 0:
+                    playlistListBox.insert(tk.END, songToInsert)
+                    screenWidth = 1229
+                    buttonWidth = 30
+                    buttonHeight = 30
+                    playlistListBox.place(x=screenWidth - 435, y=0 + 13 * buttonHeight)
+                    playlistListBoxLabel.place(x=screenWidth - 435, y=0 + 13 * buttonHeight - 17)
+                    playlistNameLabel.place(x=screenWidth - 435, y=0 + 19 * buttonHeight)
+                    playlistNameEntry.place(x=screenWidth - 350, y=0 + 19 * buttonHeight)
+                    downloadPlaylistButton.place(x=screenWidth - 1.5 * (buttonWidth * 9.5) + 7.5,
+                                                 y=0 + 20 * buttonHeight + 10)
+                    removePlaylistButton.place(x=screenWidth - 1.5 * (buttonWidth * 7) + 7.5,
+                                               y=0 + 20 * buttonHeight + 10)
+                    clearPlaylistButton.place(x=screenWidth - 1.5 * (buttonWidth * 4.5) + 7.5,
+                                              y=0 + 20 * buttonHeight + 10)
         else:
             tk.messagebox.showwarning(title="Error", message="Nothing selected to add")
 
@@ -179,10 +207,20 @@ class ListboxManagementClass:
     # REMOVE FUNCTIONS
     # REMOVE ONE ITEM FROM PLAYLIST LISTBOX
     @staticmethod
-    def removeItemsFromPlaylistListbox(listbox):
+    def removeItemsFromPlaylistListbox(listbox, playlistListBoxLabel, playlistNameLabel,
+                                       playlistNameEntry, downloadPlaylistButton,
+                                       removePlaylistButton, clearPlaylistButton):
         if len(listbox.curselection()) > 0:
             for i in reversed(listbox.curselection()):
                 listbox.delete(i)
+                if listbox.size() == 0:
+                    listbox.place_forget()
+                    playlistListBoxLabel.place_forget()
+                    playlistNameLabel.place_forget()
+                    playlistNameEntry.place_forget()
+                    downloadPlaylistButton.place_forget()
+                    removePlaylistButton.place_forget()
+                    clearPlaylistButton.place_forget()
         else:
             tk.messagebox.showwarning(title="Error", message="Nothing selected to delete")
 
@@ -213,8 +251,18 @@ class ListboxManagementClass:
 
     # REMOVE ALL ITEMS FROM PLAYLIST LISTBOX
     @staticmethod
-    def clearPlaylistListbox(playlistListBox):
+    def clearPlaylistListbox(playlistListBox, playlistListBoxLabel,
+                             playlistNameLabel, playlistNameEntry,
+                             downloadPlaylistButton, removePlaylistButton,
+                             clearPlaylistButton):
         playlistListBox.delete(0, tk.END)
+        playlistListBox.place_forget()
+        playlistListBoxLabel.place_forget()
+        playlistNameLabel.place_forget()
+        playlistNameEntry.place_forget()
+        downloadPlaylistButton.place_forget()
+        removePlaylistButton.place_forget()
+        clearPlaylistButton.place_forget()
 
     # REMOVE FUNCTIONS END
 
@@ -223,6 +271,7 @@ class ListboxManagementClass:
     @staticmethod
     def getSongsDataAdminListbox(adminListbox):
         adminListbox.delete(0, tk.END)
+        adminListbox.configure(justify="center")
         firstRow = "SongID - Title - Singer - Genre"
         adminListbox.insert(tk.END, firstRow)
         adminListbox.insert(tk.END, "")
@@ -239,6 +288,7 @@ class ListboxManagementClass:
     @staticmethod
     def getUsersDataAdminListbox(adminListbox):
         adminListbox.delete(0, tk.END)
+        adminListbox.configure(justify="center")
         firstRow = "UserID - Username - isAdmin"
         adminListbox.insert(tk.END, firstRow)
         adminListbox.insert(tk.END, "")
@@ -249,6 +299,24 @@ class ListboxManagementClass:
             isAdmin = row[4]
             songsData = str(userID) + " - " + name + " - " + str(isAdmin)
             adminListbox.insert(tk.END, songsData)
+
+    # GET QUESTION DATA FROM QUIZZ TABLE
+    @staticmethod
+    def getQuestionsDataAdminListbox(adminListbox):
+        adminListbox.delete(0, tk.END)
+        adminListbox.configure(justify="left")
+        firstRow = "Question - Answers - Correct "
+        adminListbox.insert(tk.END, firstRow)
+        adminListbox.insert(tk.END, "")
+        rows = quizzTable.getAllQuestionsData()
+        for row in rows:
+            question = row[1]
+            answers = row[2].split("%")
+            correct = row[3]
+            adminListbox.insert(tk.END, str(question))
+            adminListbox.insert(tk.END, str(answers))
+            adminListbox.insert(tk.END, str(correct))
+            adminListbox.insert(tk.END, "")
 
     # GET FUNCTIONS END
 

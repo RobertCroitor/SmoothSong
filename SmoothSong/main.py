@@ -1,4 +1,4 @@
-from gui import player, login
+from gui import login, chooseStyle
 
 if __name__ == "__main__":
-    login.loginFormWindow()
+    chooseStyle.styleWindow()

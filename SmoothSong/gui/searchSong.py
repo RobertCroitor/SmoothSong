@@ -11,12 +11,12 @@ downloadManagement = downloadManagement.DownloadManagementClass()
 
 
 # SWAP PAGE FUNCTIONS
-def goBackToMainWindow(window, userID):
+def goBackToMainWindow(window, userID, mode):
     window.destroy()
-    player.mainWindow(userID)
+    player.mainWindow(userID, mode)
 
 
-def searchSongWindow(userID):
+def searchSongWindow(userID, mode):
     # WINDOW INITIALISATION
     window = tk.Tk()
 
@@ -29,8 +29,16 @@ def searchSongWindow(userID):
     listBoxHeight = 30
 
     # WINDOW CONFIGURATION
-    window.geometry("%dx%d" % (screenWidth, screenHeight))
-    window.configure(bg="silver")
+    if mode == "WHITE":
+        bgColor = "#f5faf5"
+        widgetColor = "#c0c2c0"
+        textColor = "#000000"
+    else:
+        bgColor = "#3d3d3d"
+        widgetColor = "#9c9c9c"
+        textColor = "black"
+    window.configure(bg=bgColor)
+    window.geometry("683x691+30+30")
     window.top_bar = tk.Frame(window, bg="Red", cursor="sizing")
     window.title("Song Collection")
     window.resizable(False, False)
@@ -42,48 +50,50 @@ def searchSongWindow(userID):
         window,
         height=listBoxHeight,
         width=listBoxWidth,
-        selectmode='single')
+        selectmode='single', borderwidth=1,
+        highlightthickness=0,
+        font="sans 8 bold")
     listboxManagement.populateSearchSongsListbox(listbox)
     scrollbar = tk.Scrollbar(listbox)
 
     # SEARCH BAR CREATION
-    searchFrame = tk.Frame(window, bg='red')
-    searchLabel = tk.Label(searchFrame, text='Search Song', width=10, bg="#5c1a56",
-                           fg="silver")
-    searchBarEntry = tk.Entry(searchFrame, width=68)
+    searchFrame = tk.Frame(window, )
+    searchLabel = tk.Label(searchFrame, text='Search Song', width=10, bg=widgetColor,
+                           fg=textColor, font="sans 8 bold")
+    searchBarEntry = tk.Entry(searchFrame, bg=widgetColor, fg=textColor, font="sans 8 bold", width=68)
 
     # BUTTON CREATION
-    searchByAuthorButton = tk.Button(window, width=int(buttonWidth / 2), text='Search Author', bg="#5c1a56",
-                                     fg="silver", command=lambda: [
+    searchByAuthorButton = tk.Button(window, width=int(buttonWidth / 2), text='Search Author', bg=widgetColor,
+                                     fg=textColor, font="sans 8 bold", command=lambda: [
             listboxManagement.searchSongsByAuthor(listbox, searchBarEntry)])
 
-    searchByTitleButton = tk.Button(window, width=int(buttonWidth / 2), text='Search Song', bg="#5c1a56",
-                                    fg="silver", command=lambda: [
+    searchByTitleButton = tk.Button(window, width=int(buttonWidth / 2), text='Search Song', bg=widgetColor,
+                                    fg=textColor, font="sans 8 bold", command=lambda: [
             listboxManagement.searchSongsByTitle(listbox, searchBarEntry)])
-    searchByGenreButton = tk.Button(window, width=int(buttonWidth / 2), text='Search Genre', bg="#5c1a56",
-                                    fg="silver", command=lambda: [
+    searchByGenreButton = tk.Button(window, width=int(buttonWidth / 2), text='Search Genre', bg=widgetColor,
+                                    fg=textColor, font="sans 8 bold", command=lambda: [
             listboxManagement.searchSongsByGenre(listbox, searchBarEntry)])
-    resetListboxButton = tk.Button(window, width=int(buttonWidth / 2), text='Reset', bg="#5c1a56",
-                                   fg="silver", command=lambda: [
+    resetListboxButton = tk.Button(window, width=int(buttonWidth / 2), text='Reset', bg=widgetColor,
+                                   fg=textColor, font="sans 8 bold", command=lambda: [
             listboxManagement.resetSongCollectionListbox(listbox, searchBarEntry)])
     backButton = tk.Button(window, text="Back", width=int(buttonWidth / 2),
-                           bg="#5c1a56",
-                           fg="silver",
+                           bg=widgetColor,
+                           fg=textColor,
                            font="sans 8 bold",
-                           command=lambda: goBackToMainWindow(window, userID))
+                           command=lambda: goBackToMainWindow(window, userID, mode))
     saveToFavoritesButton = tk.Button(window, text="Add to Favorite", width=int(buttonWidth / 2),
-                                      bg="#5c1a56",
-                                      fg="silver",
+                                      bg=widgetColor,
+                                      fg=textColor,
                                       font="sans 8 bold",
                                       command=lambda: listboxManagement.saveToFavorites(listbox, userID))
     downloadSongButton = tk.Button(window, text="Download Song", width=int(buttonWidth / 2),
-                                   bg="#5c1a56",
-                                   fg="silver",
+                                   bg=widgetColor,
+                                   fg=textColor,
                                    font="sans 8 bold",
                                    command=lambda: downloadManagement.downloadSelectedSongs(listbox))
     exitButton = tk.Button(window, text="Leave", height=20, width=40, image=pixelVirtual,
-                           bg="#5c1a56",
-                           fg="silver",
+                           bg=widgetColor,
+                           fg=textColor,
                            compound="c", font="sans 8 bold", command=lambda: [windowManagement.exitApp(window)])
     # CREATION END
 
@@ -91,6 +101,7 @@ def searchSongWindow(userID):
     # LISTBOX CONFIGURATION
     listbox.config(yscrollcommand=scrollbar.set)
     scrollbar.config(command=listbox.yview)
+    listbox.configure(bg=widgetColor, fg=textColor)
     listbox.configure(justify="center")
 
     # SEARCH BAR CONFIGURATION

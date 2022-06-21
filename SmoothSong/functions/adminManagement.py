@@ -22,7 +22,7 @@ class AdminManagementClass:
             songEntry.delete(0, tk.END)
             userEntry.delete(0, tk.END)
             if confirmation:
-                tk.messagebox.showwarning(title="Error", message="Success")
+                tk.messagebox.showwarning(title="Success", message="Success")
             else:
                 tk.messagebox.showwarning(title="Error", message="Failure")
 
@@ -39,7 +39,7 @@ class AdminManagementClass:
             if songConfirmation:
                 favoritesConfirmation = favoritesTable.deleteSongByTitleAndSinger(title, singer)
                 if favoritesConfirmation:
-                    tk.messagebox.showwarning(title="Error", message="Success")
+                    tk.messagebox.showwarning(title="Success", message="Success")
                     songEntry.delete(0, tk.END)
                     userEntry.delete(0, tk.END)
                 else:
@@ -61,7 +61,7 @@ class AdminManagementClass:
             songEntry.delete(0, tk.END)
             userEntry.delete(0, tk.END)
             if confirmation:
-                tk.messagebox.showwarning(title="Error", message="Success")
+                tk.messagebox.showwarning(title="Success", message="Success")
             else:
                 tk.messagebox.showwarning(title="Error", message="Failure")
     # GIVE FUNCTIONS END

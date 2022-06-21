@@ -25,7 +25,7 @@ class DataManagementClass:
             if count == 0:
                 confirmation = songTable.insertSong(songName, songSinger, songGenre, songImage, songURL)
                 if confirmation:
-                    tk.messagebox.showwarning(title="Error", message="Song added successfully")
+                    tk.messagebox.showwarning(title="Success", message="Song added successfully")
                 else:
                     tk.messagebox.showwarning(title="Error", message="Adding the song failed")
             else:

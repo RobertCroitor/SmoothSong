@@ -79,7 +79,7 @@ class AuthentificationManagerClass:
                             else:
                                 confirmation = userTable.insertUser(inputUsername, inputPassword)
                                 if confirmation:
-                                    tk.messagebox.showwarning(title="Error",
+                                    tk.messagebox.showwarning(title="Success",
                                                               message="Register Successfully")
                                     return True
                                 else:
