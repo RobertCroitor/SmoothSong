@@ -11,12 +11,12 @@ class QuizzGameManagement:
     def addQuestionToQuizzTable(questionEntry, firstAnswersEntry, secondAnswersEntry, thirdAnswersEntry,
                                 fourthAnswersEntry, correctEntry):
 
-        questionText = (questionEntry.get())
-        firstAnswerText = (firstAnswersEntry.get())
-        secondAnswerText = (secondAnswersEntry.get())
-        thirdAnswerText = (thirdAnswersEntry.get())
-        fourthAnswerText = (fourthAnswersEntry.get())
-        correctText = (correctEntry.get())
+        questionText = (questionEntry.get()).stip()
+        firstAnswerText = (firstAnswersEntry.get()).stip()
+        secondAnswerText = (secondAnswersEntry.get()).stip()
+        thirdAnswerText = (thirdAnswersEntry.get()).stip()
+        fourthAnswerText = (fourthAnswersEntry.get()).stip()
+        correctText = (correctEntry.get()).stip()
         if questionText == "" or firstAnswerText == "" or secondAnswerText == "" \
                 or thirdAnswerText == "" or fourthAnswerText == "" or correctText == "":
             tk.messagebox.showwarning(title="Error", message="You cannot have empty fields")

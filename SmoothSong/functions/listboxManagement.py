@@ -121,7 +121,6 @@ class ListboxManagementClass:
     @staticmethod
     def searchSongsByAuthor(listbox, titleEntry):
         if len(titleEntry.get()) != 0:
-            print(len(titleEntry.get()))
             count = 0
             title = (titleEntry.get())
             rows = songTable.getAllSongs()

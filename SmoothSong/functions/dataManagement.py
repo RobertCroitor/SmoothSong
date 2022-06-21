@@ -13,9 +13,9 @@ class DataManagementClass:
     # INSERT FUNCTIONS
     @staticmethod
     def insertSongIntoSongTable(songEntry, authorEntry, genreEntry, songImageEntry, songFileEntry):
-        songName = (songEntry.get())
-        songSinger = (authorEntry.get())
-        songGenre = (genreEntry.get())
+        songName = (songEntry.get()).strip()
+        songSinger = (authorEntry.get()).strip()
+        songGenre = (genreEntry.get()).strip()
         songImage = (songImageEntry.get())
         songURL = (songFileEntry.get())
         if songName == "" or songSinger == "" or songGenre == "" or songImage == "" or songURL == "":
