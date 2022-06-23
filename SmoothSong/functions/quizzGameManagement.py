@@ -11,19 +11,33 @@ class QuizzGameManagement:
     def addQuestionToQuizzTable(questionEntry, firstAnswersEntry, secondAnswersEntry, thirdAnswersEntry,
                                 fourthAnswersEntry, correctEntry):
 
-        questionText = (questionEntry.get()).stip()
-        firstAnswerText = (firstAnswersEntry.get()).stip()
-        secondAnswerText = (secondAnswersEntry.get()).stip()
-        thirdAnswerText = (thirdAnswersEntry.get()).stip()
-        fourthAnswerText = (fourthAnswersEntry.get()).stip()
-        correctText = (correctEntry.get()).stip()
+        questionText = (questionEntry.get())
+        firstAnswerText = (firstAnswersEntry.get())
+        secondAnswerText = (secondAnswersEntry.get())
+        thirdAnswerText = (thirdAnswersEntry.get())
+        fourthAnswerText = (fourthAnswersEntry.get())
+        correctText = (correctEntry.get())
         if questionText == "" or firstAnswerText == "" or secondAnswerText == "" \
                 or thirdAnswerText == "" or fourthAnswerText == "" or correctText == "":
             tk.messagebox.showwarning(title="Error", message="You cannot have empty fields")
         else:
+            questionText = questionText.strip()
+            firstAnswerText = firstAnswerText.strip()
+            secondAnswerText = secondAnswerText.strip()
+            thirdAnswerText = thirdAnswerText.strip()
+            fourthAnswerText = fourthAnswerText.strip()
+            correctText = correctText.strip()
+            matchCount = 0
             answers = firstAnswerText + "%" + secondAnswerText + "%" + thirdAnswerText + "%" + fourthAnswerText
-            if correctText == firstAnswerText or correctText == secondAnswerText \
-                    or correctText == thirdAnswerText or correctText == fourthAnswerText:
+            if correctText == firstAnswerText:
+                matchCount += 1
+            if correctText == secondAnswerText:
+                matchCount += 1
+            if correctText == thirdAnswerText:
+                matchCount += 1
+            if correctText == fourthAnswerText:
+                matchCount += 1
+            if matchCount == 1:
                 confirmation = quizzGameTable.insertSong(questionText, answers, correctText)
                 if confirmation:
                     tk.messagebox.showwarning(title="Success", message=" Question inserted successfully")
@@ -37,8 +51,13 @@ class QuizzGameManagement:
                     tk.messagebox.showwarning(title="Error", message=" Failed to insert in the Quizz Table")
 
             else:
-                tk.messagebox.showwarning(title="Error",
-                                          message=" Failed \n Correct answer is not one of the variants!")
+                if matchCount == 0:
+                    tk.messagebox.showwarning(title="Error",
+                                              message=" Failed \n Correct answer is not one of the variants!")
+                else:
+                    tk.messagebox.showwarning(title="Error",
+                                              message="Failed \n Correct answer must be placed in only one of the "
+                                                      "variants!")
 
 
 quizzGame = QuizzGameManagement()

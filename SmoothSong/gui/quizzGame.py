@@ -26,7 +26,7 @@ def quizzGameWindow(userID, mode):
     # WINDOW CONFIGURATION
     if mode == "WHITE":
         bgColor = "#f5faf5"
-        widgetColor = "#c0c2c0"
+        widgetColor = "#fffffa"
         textColor = "#000000"
     else:
         bgColor = "#3d3d3d"

@@ -29,14 +29,17 @@ class DownloadManagementClass:
     # DOWNLOAD SONGS AS PLAYLIST
     @staticmethod
     def downloadPlaylist(playlistListbox, playlistEntry):
-        for i in range(playlistListbox.size()):
-            playlist = (playlistEntry.get())
-            selectedOption = playlistListbox.get(i).split("-")
-            title = selectedOption[0].strip()
-            author = selectedOption[1].strip()
-            rows = songsTable.getSongData(title, author)
-            songTitle = rows[0][1]
-            songAuthor = rows[0][2]
-            songURL = rows[0][5]
-            downloadSong.createDir(playlist)
-            downloadSong.downloadPlaylist(songTitle, songAuthor, songURL, playlist)
+        if playlistEntry.get():
+            for i in range(playlistListbox.size()):
+                playlist = (playlistEntry.get())
+                selectedOption = playlistListbox.get(i).split("-")
+                title = selectedOption[0].strip()
+                author = selectedOption[1].strip()
+                rows = songsTable.getSongData(title, author)
+                songTitle = rows[0][1]
+                songAuthor = rows[0][2]
+                songURL = rows[0][5]
+                downloadSong.createDir(playlist)
+                downloadSong.downloadPlaylist(songTitle, songAuthor, songURL, playlist)
+        else:
+            tk.messagebox.showwarning(title="Error", message="No name given to the playlist!")
